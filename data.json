@@ -1,0 +1,30 @@
+
+{
+    "items": [
+        {
+          "name": "Ice",
+          "location": 0,
+          "isPresent": true
+        },
+        {
+          "name": "Ham",
+          "location": 1,
+          "isPresent": true
+        },
+        {
+          "name": "Snack",
+          "location": 2,
+          "isPresent": true
+        },
+        {
+          "name": "Potatos",
+          "location": 3,
+          "isPresent": true
+        },
+        {
+          "name": "Detergent",
+          "location": 4,
+          "isPresent": true
+        }
+    ]
+}
