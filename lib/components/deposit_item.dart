@@ -12,13 +12,19 @@ class DepositItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = item.isPresent == 0 ? theme.primaryColor : theme.disabledColor;
+    //final color = item.isPresent == 0 ? theme.cardColor : theme.disabledColor;
+    final backgroundColor = item.isPresent == 0 ? theme.primaryColorLight : theme.cardColor;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: ListTile(
         leading: IconButton(
             icon: Icon(Icons.add_shopping_cart),
-            color: color,
+            //color: color,
+            style: IconButton.styleFrom(
+              
+              backgroundColor: backgroundColor, // Background color
+            ),
             onPressed: () {
               onItemStateChanged(item);
         }),
