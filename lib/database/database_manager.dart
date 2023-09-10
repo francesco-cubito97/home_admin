@@ -59,6 +59,23 @@ Future<List<DepositItemModel>> getItems() async
   });
 }
 
+Future<List<DepositItemModel>> getNotPresentItems() async
+{
+  final db = await getDatabase();
+
+  // Query the table for all The Items.
+  final List<Map<String, dynamic>> maps = await db.query('items', where: "isPresent == 0", orderBy: "location");
+
+  return List.generate(maps.length, (index) {
+    return DepositItemModel(
+      itemID: maps[index]["itemID"],
+      name: maps[index]["name"],
+      location: maps[index]["location"],
+      isPresent: maps[index]["isPresent"]
+    );
+  });
+}
+
 Future<void> updateItemPresence(DepositItemModel item) async
 {
   final db = await getDatabase();

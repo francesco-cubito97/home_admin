@@ -10,8 +10,8 @@ int selectedLanguage = Languages.eng.index;
 //    1 - Italian
 const List<String> listLanguages = ["English", "Italiano"];
 
-const String depositPageTitle = "Deposit";
-const String shoppingCartPageTitle = "Shopping Cart";
+const List<String> depositPageTitle = ["Deposit", "Dispensa"];
+const List<String> shoppingCartPageTitle = ["Shopping Cart", "Carrello"];
 
 //static const List< List<String> > allPages = [depositPageTitle, shoppingCartPageTitle];
 
@@ -28,17 +28,17 @@ const int otherItemsListIndex   = 4;
 
 const int numberOfDepositTypes = 5;
 
-const List<String> listDepositType1 = ["Freezer", "Congelatore"];
-const List<String> listDepositType2 = ["Refrigerator", "Frigorifero"];  
-const List<String> listDepositType3 = ["Sideboard", "Dispensa"]; 
-const List<String> listDepositType4 = ["Fresh foods", "Cibi freschi"]; 
-const List<String> listDepositType5 = ["Other", "Altro"];
+const List<String> listDepositTypeFreezer = ["Freezer", "Congelatore"];
+const List<String> listDepositTypeRefrigerator = ["Refrigerator", "Frigorifero"];  
+const List<String> listDepositTypeSideboard = ["Sideboard", "Dispensa"]; 
+const List<String> listDepositTypeFreshFoods = ["Fresh foods", "Cibi freschi"]; 
+const List<String> listDepositTypeOther = ["Other", "Altro"];
 const List< List<String> > allLists = [
-                                                listDepositType1, 
-                                                listDepositType2, 
-                                                listDepositType3, 
-                                                listDepositType4, 
-                                                listDepositType5
+                                                listDepositTypeFreezer, 
+                                                listDepositTypeRefrigerator, 
+                                                listDepositTypeSideboard, 
+                                                listDepositTypeFreshFoods, 
+                                                listDepositTypeOther
                                               ];
 const List< List<String> > allDepositLists = [
                                                 ["Freezer", "Refrigerator", "Sideboard", "Fresh foods", "Other"],

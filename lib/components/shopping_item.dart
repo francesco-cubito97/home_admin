@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:home_adm/database/data_models/deposit_item_model.dart';
 
-// Inside the deposit there will be a checkable element
-class DepositItem extends StatelessWidget {
-  DepositItem({required this.item, required this.onItemStateChanged})
+// Inside the shopping page there will be checkable elements
+class ShoppingItem extends StatelessWidget {
+  ShoppingItem({required this.item, required this.onItemStateChanged})
       : super(key: ObjectKey(item));
 
   final DepositItemModel item;
@@ -11,19 +11,18 @@ class DepositItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = item.isPresent == 0 ? theme.primaryColor : theme.disabledColor;
+    final itemIsPresent = item.isPresent == 1;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: ListTile(
-        leading: IconButton(
-            icon: Icon(Icons.add_shopping_cart),
-            color: color,
-            onPressed: () {
+        leading: Checkbox(
+            value: itemIsPresent,
+            onChanged: (value) {
               onItemStateChanged(item);
         }),
         title: Text(
-            item.name
+            item.name,
+            style: TextStyle(decoration: (itemIsPresent ? TextDecoration.lineThrough : null))
         ),
         onTap: () {
           onItemStateChanged(item);

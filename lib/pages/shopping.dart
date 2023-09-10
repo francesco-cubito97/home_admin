@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:home_adm/database/data_models/deposit_item_model.dart';
+import 'package:home_adm/components/shopping_item.dart';
+import 'package:home_adm/components/nested_lists.dart';
+
+import 'package:home_adm/globals.dart' as constants;
+import 'package:home_adm/database/database_manager.dart' as db;
 
 
 // I should create a list of elements setted as not present inside the deposit.
@@ -7,39 +12,6 @@ import 'package:home_adm/database/data_models/deposit_item_model.dart';
 // It is really similar to the deposit with the difference that it receives the
 // list of elements that must be bought from the deposit and permits to unmark
 // them during shopping.
-
-class ShoppingItem extends StatelessWidget {
-  final DepositItemModel item;
-  final void Function(DepositItemModel) onItemStateChanged;
-  
-  ShoppingItem({ 
-                  required this.item, 
-                  required this.onItemStateChanged 
-              }) : super(key: ObjectKey(item));
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Checkbox(
-            value: item.isPresent == 1 ? true : false, 
-            onChanged: ((value) {
-              onItemStateChanged(item);
-            }),
-          ),
-          Text(
-              style: TextStyle(decoration: item.isPresent == 0 ? TextDecoration.lineThrough : null),
-              item.name,
-              
-            )
-        ],
-      ),
-    );
-  }
-}
 
 class ShoppingPage extends StatefulWidget {
   const ShoppingPage({super.key});
@@ -50,26 +22,159 @@ class ShoppingPage extends StatefulWidget {
 
 class _ShoppingPageState extends State<ShoppingPage> {
   
-  List<DepositItemModel> freezer = [];
+  List <DepositItemModel> sideboardList = [];
+  List <DepositItemModel> freshfoodList = [];
+  List <DepositItemModel> refrigeratorList = [];
+  List <DepositItemModel> freezerList = [];
+  List <DepositItemModel> otherItemsList = [];
 
-  void _handleShoppingStateChanged(DepositItemModel item)
+  bool loading = true;
+
+  void _refreshData({bool refreshAll = false}) async 
   {
+    final data = await db.getNotPresentItems();
+
+    if(refreshAll)
+    {
+      List <DepositItemModel> temporarySideboardList = [];
+      List <DepositItemModel> temporaryFreshFoodList = [];
+      List <DepositItemModel> temporaryRefrigeratorList = [];
+      List <DepositItemModel> temporaryFreezerList = [];
+      List <DepositItemModel> temporaryOtherItemsList = [];
+
+      for(DepositItemModel item in data)
+      {
+ 
+        // Add it to the correct list
+        switch (item.location) {
+          case constants.freezerListIndex:
+            temporaryFreezerList.add(item);
+            break;
+          case constants.sideboardListIndex:
+            temporarySideboardList.add(item);
+            break;
+          case constants.freshFoodListIndex:
+            temporaryFreshFoodList.add(item);
+            break;
+          case constants.refrigeratorListIndex:
+            temporaryRefrigeratorList.add(item);
+            break;
+          case constants.otherItemsListIndex:
+            temporaryOtherItemsList.add(item);
+            break;
+          default:
+        }
+      
+        // And update the state to refresh the page
+        setState(() {
+          freezerList = temporaryFreezerList;
+          refrigeratorList = temporaryRefrigeratorList;
+          freshfoodList = temporaryFreshFoodList;
+          sideboardList = temporarySideboardList;
+          otherItemsList = temporaryOtherItemsList;
+        });
+        
+      }
+    }
+
     setState(() {
-      item.isPresent = (item.isPresent+1)%2;
+      loading = !loading;
     });
-  }
+
+  } 
+
 
   @override
+  void initState()
+  {
+    super.initState();
+    _refreshData(refreshAll: true);
+  }
+
+  List<DepositItemModel> getItemListByIndex(int listIndex)
+  {
+    switch (listIndex) {
+      case constants.freezerListIndex:
+        return freezerList;
+      case constants.refrigeratorListIndex:
+        return refrigeratorList;
+      case constants.freshFoodListIndex:
+        return freshfoodList;
+      case constants.sideboardListIndex:
+        return sideboardList;
+      case constants.otherItemsListIndex:
+        return otherItemsList; 
+        
+      default:
+        return [];
+    }
+  }
+
+  void _removeItemFromList(DepositItemModel itemToRemove) 
+  {
+    switch (itemToRemove.location) {
+      case constants.freezerListIndex:
+        freezerList.remove(itemToRemove);
+        break;
+
+      case constants.refrigeratorListIndex:
+        refrigeratorList.remove(itemToRemove);
+        break;
+      
+      case constants.freshFoodListIndex:
+        freshfoodList.remove(itemToRemove);
+        break;
+      
+      case constants.sideboardListIndex:
+        sideboardList.remove(itemToRemove);
+        break;
+      
+      case constants.otherItemsListIndex:
+        otherItemsList.remove(itemToRemove);
+        break;
+
+      default:
+    }
+  }
+
+  void _toggleItemPresence(DepositItemModel item) async
+  {
+    item.isPresent = (item.isPresent + 1)%2;
+
+    // Update the value on the database
+    await db.updateItemPresence(item);
+
+    // Remove from view
+    //_removeItemFromList(item);
+
+    // Refresh everything
+    _refreshData();
+  }
+
+   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Shopping List")
-      ),
-      body: ListView(
-        children: freezer.map((DepositItemModel item) {
-            return ShoppingItem(item: item, onItemStateChanged: _handleShoppingStateChanged);
-          }).toList()
-      )
-    );
+        appBar: AppBar(
+          title: Text(constants.shoppingCartPageTitle[constants.selectedLanguage])
+        ),
+        body: CustomScrollView(
+          slivers: <Widget> [
+            
+            SliverList(
+              delegate: SliverChildListDelegate([
+                NestedList(itemListTitle: constants.listDepositTypeSideboard[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.sideboardListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeFreezer[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.freezerListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeRefrigerator[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.refrigeratorListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeFreshFoods[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.freshFoodListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeOther[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.otherItemsListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
+                SizedBox(height: 100.0)
+              ])
+            ),
+
+            
+            ],
+        ),
+      );
   }
 }

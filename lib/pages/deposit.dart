@@ -30,14 +30,14 @@ class _DepositPageState extends State<DepositPage> {
   List <DepositItemModel> freezerList = [];
   List <DepositItemModel> otherItemsList = [];
 
-  List<DepositItemModel> allItems = [];
+  bool loading = true;
 
   void _refreshData({bool refreshAll = false}) async
   {
     
     final data = await db.getItems();
-    print(data);
-    print(refreshAll);
+    //print(data);
+    //print(refreshAll);
     // Insert elements inside the correct lists
     if(refreshAll)
     {
@@ -78,11 +78,11 @@ class _DepositPageState extends State<DepositPage> {
         refrigeratorList = refrigerator;
         freshfoodList = freshfood;
         otherItemsList = otherItems;
-    });
+      });
     }
 
     setState(() {
-      allItems = data;
+      loading = false;
     });
   }
 
@@ -159,22 +159,6 @@ class _DepositPageState extends State<DepositPage> {
 
   }
 
-  void addNewItemByListIndex(int listIndex) async
-  {
-    String listName = constants.getListNameByIndex(listIndex);
-    DepositItemModel newItem = DepositItemModel(  
-                                                  name: "NewItemOn$listName", 
-                                                  location: listIndex,
-                                                  isPresent: 1
-                                                );
-    await db.insertNewItem(newItem);
-
-    _addItemToItemListByIndex(listIndex, newItem);
-
-    _refreshData();
-    
-  }
-
   void addNewItem(FormResult itemToAdd) async
   {
     int listIndex = getItemListIndexByName(itemToAdd.choosenDepositList);
@@ -199,18 +183,18 @@ class _DepositPageState extends State<DepositPage> {
 
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Deposit")
+          title: Text(constants.depositPageTitle[constants.selectedLanguage])
         ),
         body: CustomScrollView(
           slivers: <Widget> [
             
             SliverList(
               delegate: SliverChildListDelegate([
-                NestedList(itemListTitle: "Sideboard", itemsWidget: getItemListByIndex(constants.sideboardListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
-                NestedList(itemListTitle: "Freezer", itemsWidget: getItemListByIndex(constants.freezerListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
-                NestedList(itemListTitle: "Refrigerator", itemsWidget: getItemListByIndex(constants.refrigeratorListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
-                NestedList(itemListTitle: "Fresh Foods", itemsWidget: getItemListByIndex(constants.freshFoodListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
-                NestedList(itemListTitle: "Other", itemsWidget: getItemListByIndex(constants.otherItemsListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeSideboard[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.sideboardListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeFreezer[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.freezerListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeRefrigerator[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.refrigeratorListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeFreshFoods[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.freshFoodListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
+                NestedList(itemListTitle: constants.listDepositTypeOther[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.otherItemsListIndex).map((DepositItemModel item) => DepositItem(item: item, onItemStateChanged: _toggleDepositItemPresence)).toList()),
                 SizedBox(height: 100.0)
               ])
             ),
@@ -236,7 +220,7 @@ class _DepositPageState extends State<DepositPage> {
     FormResult formResult = FormResult(choosenItemName: "", choosenDepositList: "");
 
     return showDialog <FormResult>(
-      context: this.context,
+      context: context,
       builder:(context) => SingleChildScrollView( // This helps the dialog to not be resized after opening keyboard
         child: AlertDialog(
           title: Text(constants.depositDialogTitle[constants.selectedLanguage]),

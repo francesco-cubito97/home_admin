@@ -31,6 +31,8 @@ class NestedList extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
          Container(
               color: theme.colorScheme.tertiary,
@@ -41,7 +43,7 @@ class NestedList extends StatelessWidget {
         ListView(
           shrinkWrap: true,
           physics: const ClampingScrollPhysics(),
-          children: itemsWidget,  
+          children: itemsWidget
         )
     
       ]

@@ -1,10 +1,8 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 // Firebase activation
-import 'package:firebase_core/firebase_core.dart';
-import 'package:home_adm/firebase_options.dart';
+//import 'package:firebase_core/firebase_core.dart';
+//import 'package:home_adm/firebase_options.dart';
 
 import 'package:home_adm/pages/home.dart';
 
