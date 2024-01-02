@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
             BigCardTitle(title: widget.title),
             const SizedBox(height: 100,),
             // Four buttons, each with a specific page associated,
-            // organized in two rows
+            // organized in two rows.
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -48,8 +48,13 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                // Inside this page is possible to schedule meals in a month
+                // week by week and day by day.
                 HomeButton(icon: const Icon(Icons.dinner_dining_outlined), onPressed: () {}),
-                HomeButton(icon: const Icon(Icons.attach_money_outlined), onPressed: () {})
+                
+                // Inside this page is possible to schedule different activities
+                // to some family component.
+                HomeButton(icon: const Icon(Icons.schedule_outlined), onPressed: () {})
               ],
             ),
           ],
