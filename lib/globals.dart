@@ -49,13 +49,21 @@ String getListNameByIndex(int indexOfList)
 {
   return allLists[indexOfList][selectedLanguage];
 }
-
 // Deposit Page elements
 const List<String> addButtonDepositItem = ["Add new item", "Aggiungi un elemento"];
+const List<String> deleteButtonDepositItems = ["Delete items", "Elimina elementi"];
 const List<String> depositDialogTitle = ["Create a new item", "Crea un nuovo elemento"];
 const List<String> depositDialogItemName = ["New item name", "Nome del nuovo elemento"];
 const List<String> depositDialogItemNameHint = ["Enter name", "Inserisci nome"];
 const List<String> depositDialogItemLocation = ["New item location", "Locazione del nuovo elemento"];
 const List<String> depositDialogItemLocationHint = ["Choose Location", "Scegli la locazione"];
+
+List<String> getDepositPopupMenu() {
+  List<String> popupMenuItemNames = [];
+  popupMenuItemNames.add(addButtonDepositItem.elementAt(selectedLanguage));
+  popupMenuItemNames.add(deleteButtonDepositItems.elementAt(selectedLanguage));
+
+  return popupMenuItemNames;
+}
 
 const List<String> depositDialogSubmitButton = ["Submit", "Crea"];

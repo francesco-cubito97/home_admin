@@ -4,6 +4,7 @@ import 'package:home_adm/database/data_models/deposit_item_model.dart';
 
 import 'package:home_adm/globals.dart' as constants;
 import 'package:home_adm/components/nested_lists.dart';
+import 'package:home_adm/components/popup_menu.dart';
 
 import 'package:home_adm/database/database_manager.dart' as db;
 // This will be the list of lists of elements inside the deposit
@@ -23,6 +24,11 @@ class DepositPage extends StatefulWidget {
 }
 
 class _DepositPageState extends State<DepositPage> {
+
+  // Popup menu settings
+  List<String> popupMenuItemNames = constants.getDepositPopupMenu();
+  int popupMenuItemSelected = -1;
+
   // List containing all the lists
   List<DepositItemModel> sideboardList = [];
   List<DepositItemModel> freshfoodList = [];
@@ -90,10 +96,10 @@ class _DepositPageState extends State<DepositPage> {
   int getItemListIndexByName(String listName) {
     int result = -1;
 
-    if (constants.allDepositLists[constants.selectedLanguage]
-        .contains(listName))
+    if (constants.allDepositLists[constants.selectedLanguage].contains(listName)) {
       return constants.allDepositLists[constants.selectedLanguage]
           .indexOf(listName);
+    } 
 
     return result;
   }
@@ -163,12 +169,20 @@ class _DepositPageState extends State<DepositPage> {
     _refreshData();
   }
 
+  updatePopupMenuItemSelected(int index) {
+    setState(() {
+      popupMenuItemSelected = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(constants.depositPageTitle[constants.selectedLanguage]),
-        actions: <Widget>[MenuAnchorExample()],
+        title: Text("${constants.depositPageTitle[constants.selectedLanguage]} ${popupMenuItemSelected}"),
+        actions: <Widget>[
+          PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePopupMenuItemSelected(itemIndex))
+        ],
       ),
       body: CustomScrollView(
         slivers: <Widget>[
@@ -401,8 +415,13 @@ class FormResult {
   FormResult({required this.choosenItemName, required this.choosenDepositList});
 }
 
+
+
+// Pressing the popup menu button is possible to
+// change the visualization of deposit page.
+
 // This is the type used by the menu below.
-enum SampleItem { itemOne, itemTwo, itemThree }
+enum PopupMenuItem { addNewItem, deleteItems }
 
 class MenuAnchorExample extends StatefulWidget {
   const MenuAnchorExample({super.key});
@@ -412,13 +431,14 @@ class MenuAnchorExample extends StatefulWidget {
 }
 
 class _MenuAnchorExampleState extends State<MenuAnchorExample> {
-  SampleItem? selectedMenu;
+  // This should come from the parent, because based on that
+  // the deposit page should load other components.
+  PopupMenuItem? selectedMenu;
 
   @override
   Widget build(BuildContext context) {
     return MenuAnchor(
-      builder:
-          (BuildContext context, MenuController controller, Widget? child) {
+      builder: (BuildContext context, MenuController controller, Widget? child) {
         return IconButton(
           onPressed: () {
             if (controller.isOpen) {
@@ -432,10 +452,10 @@ class _MenuAnchorExampleState extends State<MenuAnchorExample> {
         );
       },
       menuChildren: List<MenuItemButton>.generate(
-        3,
+        PopupMenuItem.values.length,
         (int index) => MenuItemButton(
           onPressed: () =>
-              setState(() => selectedMenu = SampleItem.values[index]),
+              setState(() => selectedMenu = PopupMenuItem.values[index]),
           child: Text('Item ${index + 1}'),
         ),
       ),
