@@ -12,7 +12,6 @@ class DepositItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    //final color = item.isPresent == 0 ? theme.cardColor : theme.disabledColor;
     final backgroundColor = item.isPresent == 0 ? theme.primaryColorLight : theme.cardColor;
 
     return Padding(
@@ -20,10 +19,10 @@ class DepositItem extends StatelessWidget {
       child: ListTile(
         leading: IconButton(
             icon: Icon(Icons.add_shopping_cart),
-            //color: color,
+
             style: IconButton.styleFrom(
-              
-              backgroundColor: backgroundColor, // Background color
+              // Associate a different Background color based on the state
+              backgroundColor: backgroundColor, 
             ),
             onPressed: () {
               onItemStateChanged(item);
@@ -38,3 +37,12 @@ class DepositItem extends StatelessWidget {
     );
   }
 }
+
+// Is necessary to crete a new component because the button
+// checkbox must have its own information on what delete.
+// There are two possibilities:
+//  - I include in the data model the information of what to delete
+//  - I share the information of item IDs that must be deleted.
+// Results clear to me that the function to decide what delete or not must
+// be external to this child. There I will create the list of items
+// that must be deleted.

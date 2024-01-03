@@ -27,7 +27,8 @@ class _DepositPageState extends State<DepositPage> {
 
   // Popup menu settings
   List<String> popupMenuItemNames = constants.getDepositPopupMenu();
-  int popupMenuItemSelected = -1;
+  
+  int depositPageType = -1;
 
   // List containing all the lists
   List<DepositItemModel> sideboardList = [];
@@ -40,8 +41,7 @@ class _DepositPageState extends State<DepositPage> {
 
   void _refreshData({bool refreshAll = false}) async {
     final data = await db.getItems();
-    //print(data);
-    //print(refreshAll);
+
     // Insert elements inside the correct lists
     if (refreshAll) {
       List<DepositItemModel> sideboard = [];
@@ -155,12 +155,19 @@ class _DepositPageState extends State<DepositPage> {
     _refreshData();
   }
 
+
+  // TODO: must be created something similar to the above function to delete
+
   void addNewItem(FormResult itemToAdd) async {
     int listIndex = getItemListIndexByName(itemToAdd.choosenDepositList);
     String itemName = itemToAdd.choosenItemName;
 
-    DepositItemModel newItem =
-        DepositItemModel(name: itemName, location: listIndex, isPresent: 1);
+    DepositItemModel newItem = 
+      DepositItemModel(
+        name: itemName, 
+        location: listIndex, 
+        isPresent: 1
+      );
 
     await db.insertNewItem(newItem);
 
@@ -169,19 +176,22 @@ class _DepositPageState extends State<DepositPage> {
     _refreshData();
   }
 
-  updatePopupMenuItemSelected(int index) {
-    setState(() {
-      popupMenuItemSelected = index;
-    });
+  updatePage(int index) {
+    if(index == constants.PopupMenuItem.addNewItem.index) {
+      setState(() {
+        depositPageType = index;
+      });
+    }
+    
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${constants.depositPageTitle[constants.selectedLanguage]} ${popupMenuItemSelected}"),
+        title: Text(constants.depositPageTitle[constants.selectedLanguage]),
         actions: <Widget>[
-          PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePopupMenuItemSelected(itemIndex))
+          PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePage(itemIndex))
         ],
       ),
       body: CustomScrollView(

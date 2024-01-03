@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 // Pressing the popup menu button is possible to
 // change the visualization of a page.
 
-// Define a callback
-typedef void PopupItemSelectedCallback(int itemIndex);
-
 class PopupMenu extends StatelessWidget {
   final List<String> popupMenuItemsNames;
-  final PopupItemSelectedCallback popupMenuCallback;
+  final void Function(int itemIndex) popupMenuCallback;
 
   PopupMenu({
     super.key,

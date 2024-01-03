@@ -88,4 +88,12 @@ Future<void> updateItemPresence(DepositItemModel item) async
   );
 }
 
+Future<void> deleteItems(List<DepositItemModel> itemsToDelete) async
+{
+  final db = await getDatabase();
+  for (DepositItemModel item in itemsToDelete) {
+    await db.delete("items", where: "itemID = ?", whereArgs: [item.itemID]);
+  }
+}
+
 
