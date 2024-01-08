@@ -38,6 +38,10 @@ class _DepositPageState extends State<DepositPage> {
   List<DepositItemModel> otherItemsList = [];
 
   bool loading = true;
+  bool deleteItemsSelected = false;
+
+  // TODO: list of items must be deleted
+  List<DepositItemModel> itemsToDelete = [];
 
   void _refreshData({bool refreshAll = false}) async {
     final data = await db.getItems();
@@ -155,8 +159,22 @@ class _DepositPageState extends State<DepositPage> {
     _refreshData();
   }
 
+  void _toggleDepositItemSelection(DepositItemModel item) async {
+    item.selected = !item.selected;
 
-  // TODO: must be created something similar to the above function to delete
+    // TODO: Add in the list of elements that must be deleted
+
+    setState(() {
+      loading = false;
+    });
+
+    // Update the value on the database
+    //await db.updateItemPresence(item);
+
+    // Refresh everything
+    //_refreshData();
+  }
+
 
   void addNewItem(FormResult itemToAdd) async {
     int listIndex = getItemListIndexByName(itemToAdd.choosenDepositList);
@@ -176,10 +194,21 @@ class _DepositPageState extends State<DepositPage> {
     _refreshData();
   }
 
-  updatePage(int index) {
+  updatePage(int index) async {
+    
     if(index == constants.PopupMenuItem.addNewItem.index) {
+      final FormResult? newItem = await openDepositDialog();
+          if (newItem == null ||
+              newItem.choosenItemName.isEmpty ||
+              newItem.choosenDepositList.isEmpty) return;
+
+          // Add the new created item to the correspondent list
+          addNewItem(newItem);
+    }
+
+    else if(index == constants.PopupMenuItem.deleteItems.index) {
       setState(() {
-        depositPageType = index;
+        deleteItemsSelected = true;
       });
     }
     
@@ -187,79 +216,177 @@ class _DepositPageState extends State<DepositPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(constants.depositPageTitle[constants.selectedLanguage]),
-        actions: <Widget>[
-          PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePage(itemIndex))
-        ],
-      ),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverList(
-              delegate: SliverChildListDelegate([
-            NestedList(
-                itemListTitle: constants
-                    .listDepositTypeSideboard[constants.selectedLanguage],
-                itemsWidget: getItemListByIndex(constants.sideboardListIndex)
-                    .map((DepositItemModel item) => DepositItem(
-                        item: item,
-                        onItemStateChanged: _toggleDepositItemPresence))
-                    .toList()),
-            NestedList(
-                itemListTitle: constants
-                    .listDepositTypeFreezer[constants.selectedLanguage],
-                itemsWidget: getItemListByIndex(constants.freezerListIndex)
-                    .map((DepositItemModel item) => DepositItem(
-                        item: item,
-                        onItemStateChanged: _toggleDepositItemPresence))
-                    .toList()),
-            NestedList(
-                itemListTitle: constants
-                    .listDepositTypeRefrigerator[constants.selectedLanguage],
-                itemsWidget: getItemListByIndex(constants.refrigeratorListIndex)
-                    .map((DepositItemModel item) => DepositItem(
-                        item: item,
-                        onItemStateChanged: _toggleDepositItemPresence))
-                    .toList()),
-            NestedList(
-                itemListTitle: constants
-                    .listDepositTypeFreshFoods[constants.selectedLanguage],
-                itemsWidget: getItemListByIndex(constants.freshFoodListIndex)
-                    .map((DepositItemModel item) => DepositItem(
-                        item: item,
-                        onItemStateChanged: _toggleDepositItemPresence))
-                    .toList()),
-            NestedList(
-                itemListTitle:
-                    constants.listDepositTypeOther[constants.selectedLanguage],
-                itemsWidget: getItemListByIndex(constants.otherItemsListIndex)
-                    .map((DepositItemModel item) => DepositItem(
-                        item: item,
-                        onItemStateChanged: _toggleDepositItemPresence))
-                    .toList()),
-            SizedBox(height: 100.0)
-          ])),
-        ],
-      ),
-      floatingActionButton: ElevatedButton(
-        onPressed: () async {
-          final FormResult? newItem = await openDepositDialog();
-          if (newItem == null ||
-              newItem.choosenItemName.isEmpty ||
-              newItem.choosenDepositList.isEmpty) return;
+    
+    // Simple list view to add element in the shopping page
+    if(deleteItemsSelected == false) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(constants.depositPageTitle[constants.selectedLanguage]),
+          actions: <Widget>[
+            PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePage(itemIndex))
+          ],
+        ),
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverList(
+                delegate: SliverChildListDelegate([
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeSideboard[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.sideboardListIndex)
+                      .map((DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemPresence))
+                      .toList()),
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeFreezer[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.freezerListIndex)
+                      .map((DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemPresence))
+                      .toList()),
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeRefrigerator[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.refrigeratorListIndex)
+                      .map((DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemPresence))
+                      .toList()),
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeFreshFoods[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.freshFoodListIndex)
+                      .map((DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemPresence))
+                      .toList()),
+              NestedList(
+                  itemListTitle:
+                      constants.listDepositTypeOther[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.otherItemsListIndex)
+                      .map((DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemPresence))
+                      .toList()),
+              SizedBox(height: 100.0)
+            ])),
+          ],
+        ),
+        // floatingActionButton: ElevatedButton(
+        //   onPressed: () async {
+        //     final FormResult? newItem = await openDepositDialog();
+        //     if (newItem == null ||
+        //         newItem.choosenItemName.isEmpty ||
+        //         newItem.choosenDepositList.isEmpty) return;
 
-          // Add the new created item to the correspondent list
-          addNewItem(newItem);
-        },
-        child: Text(constants.addButtonDepositItem[constants.selectedLanguage]),
-      ),
-    );
+        //     // Add the new created item to the correspondent list
+        //     addNewItem(newItem);
+        //   },
+        //   child: Text(constants.addButtonDepositItem[constants.selectedLanguage]),
+        // ),
+      );
+    }
+
+    // Delete items view
+    else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(constants.depositPageTitle[constants.selectedLanguage]),
+          actions: <Widget>[
+            PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePage(itemIndex))
+          ],
+        ),
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverList(
+                delegate: SliverChildListDelegate([
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeSideboard[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.sideboardListIndex)
+                      .map(
+                        (DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemSelection,
+                          deleteView: true,
+                        ),
+                      )
+                      .toList()
+              ),
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeFreezer[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.freezerListIndex)
+                      .map(
+                        (DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemSelection,
+                          deleteView: true,
+                        ),
+                      )
+                      .toList()
+              ),
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeRefrigerator[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.refrigeratorListIndex)
+                      .map(
+                        (DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemSelection,
+                          deleteView: true,
+                        ),
+                      )
+                      .toList()
+              ),
+              NestedList(
+                  itemListTitle: constants
+                      .listDepositTypeFreshFoods[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.freshFoodListIndex)
+                      .map(
+                        (DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemSelection,
+                          deleteView: true,
+                        ),
+                      )
+                      .toList()
+              ),
+              NestedList(
+                  itemListTitle:
+                      constants.listDepositTypeOther[constants.selectedLanguage],
+                  itemsWidget: getItemListByIndex(constants.otherItemsListIndex)
+                      .map(
+                        (DepositItemModel item) => DepositItem(
+                          item: item,
+                          onItemStateChanged: _toggleDepositItemPresence,
+                          deleteView: true,
+                        ),
+                      )
+                      .toList()
+              ),
+              SizedBox(height: 100.0)
+            ])),
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Container(
+          height: 50, 
+          margin: EdgeInsets.all(10), 
+          child: ElevatedButton(
+            onPressed: ()  {},
+            child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
+          ),
+        ) 
+      );
+    }
   }
 
   Future<FormResult?> openDepositDialog() {
-    FormResult formResult =
-        FormResult(choosenItemName: "", choosenDepositList: "");
+    FormResult formResult = FormResult(choosenItemName: "", 
+                                       choosenDepositList: "");
 
     return showDialog<FormResult>(
       context: context,
@@ -373,48 +500,48 @@ class _DropdownListState extends State<DropdownList> {
 }
 
 // Unificare in un unico widget gli oggetti textfield e dropdownbutton
-class DepositForm extends StatefulWidget {
-  const DepositForm({super.key});
+// class DepositForm extends StatefulWidget {
+//   const DepositForm({super.key});
 
-  @override
-  State<DepositForm> createState() => _DepositFormState();
-}
+//   @override
+//   State<DepositForm> createState() => _DepositFormState();
+// }
 
-class _DepositFormState extends State<DepositForm> {
-  // Add a key to the form to make possible, in the future,
-  // the validation in the elements of the form
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+// class _DepositFormState extends State<DepositForm> {
+//   // Add a key to the form to make possible, in the future,
+//   // the validation in the elements of the form
+//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Add a controller for each text field
-  //final List<TextEditingController> _controllers = [TextEditingController()];
+//   // Add a controller for each text field
+//   //final List<TextEditingController> _controllers = [TextEditingController()];
 
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              validator: (value) {
-                if (value == null || value.isEmpty)
-                  return "Please enter some text";
+//   @override
+//   Widget build(BuildContext context) {
+//     return Form(
+//         key: _formKey,
+//         child: Column(
+//           children: <Widget>[
+//             TextFormField(
+//               validator: (value) {
+//                 if (value == null || value.isEmpty)
+//                   return "Please enter some text";
 
-                return null;
-              },
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Processing Data')),
-                    );
-                  }
-                },
-                child: Text("Submit"))
-          ],
-        ));
-  }
-}
+//                 return null;
+//               },
+//             ),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   if (_formKey.currentState!.validate()) {
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       const SnackBar(content: Text('Processing Data')),
+//                     );
+//                   }
+//                 },
+//                 child: Text("Submit"))
+//           ],
+//         ));
+//   }
+// }
 
 // Every object of this class will contain the result
 // deriving from the form
@@ -431,44 +558,44 @@ class FormResult {
 // change the visualization of deposit page.
 
 // This is the type used by the menu below.
-enum PopupMenuItem { addNewItem, deleteItems }
+// enum PopupMenuItem { addNewItem, deleteItems }
 
-class MenuAnchorExample extends StatefulWidget {
-  const MenuAnchorExample({super.key});
+// class MenuAnchorExample extends StatefulWidget {
+//   const MenuAnchorExample({super.key});
 
-  @override
-  State<MenuAnchorExample> createState() => _MenuAnchorExampleState();
-}
+//   @override
+//   State<MenuAnchorExample> createState() => _MenuAnchorExampleState();
+// }
 
-class _MenuAnchorExampleState extends State<MenuAnchorExample> {
-  // This should come from the parent, because based on that
-  // the deposit page should load other components.
-  PopupMenuItem? selectedMenu;
+// class _MenuAnchorExampleState extends State<MenuAnchorExample> {
+//   // This should come from the parent, because based on that
+//   // the deposit page should load other components.
+//   PopupMenuItem? selectedMenu;
 
-  @override
-  Widget build(BuildContext context) {
-    return MenuAnchor(
-      builder: (BuildContext context, MenuController controller, Widget? child) {
-        return IconButton(
-          onPressed: () {
-            if (controller.isOpen) {
-              controller.close();
-            } else {
-              controller.open();
-            }
-          },
-          icon: const Icon(Icons.more_vert),
-          tooltip: 'Show menu',
-        );
-      },
-      menuChildren: List<MenuItemButton>.generate(
-        PopupMenuItem.values.length,
-        (int index) => MenuItemButton(
-          onPressed: () =>
-              setState(() => selectedMenu = PopupMenuItem.values[index]),
-          child: Text('Item ${index + 1}'),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MenuAnchor(
+//       builder: (BuildContext context, MenuController controller, Widget? child) {
+//         return IconButton(
+//           onPressed: () {
+//             if (controller.isOpen) {
+//               controller.close();
+//             } else {
+//               controller.open();
+//             }
+//           },
+//           icon: const Icon(Icons.more_vert),
+//           tooltip: 'Show menu',
+//         );
+//       },
+//       menuChildren: List<MenuItemButton>.generate(
+//         PopupMenuItem.values.length,
+//         (int index) => MenuItemButton(
+//           onPressed: () =>
+//               setState(() => selectedMenu = PopupMenuItem.values[index]),
+//           child: Text('Item ${index + 1}'),
+//         ),
+//       ),
+//     );
+//   }
+// }

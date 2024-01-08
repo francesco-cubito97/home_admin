@@ -52,8 +52,9 @@ String getListNameByIndex(int indexOfList)
 
 // Deposit Page elements
 enum PopupMenuItem { addNewItem, deleteItems }
-const List<String> addButtonDepositItem = ["Add new item", "Aggiungi un elemento"];
-const List<String> deleteButtonDepositItems = ["Delete items", "Elimina elementi"];
+const List<String> addDepositItemPopupMenu = ["Add new item", "Aggiungi un elemento"];
+const List<String> deleteDepositItemsPopupMenu = ["Delete items", "Elimina elementi"];
+const List<String> deleteSelectedItemsButton = ["Delete", "Elimina"];
 
 const List<String> depositDialogTitle = ["Create a new item", "Crea un nuovo elemento"];
 const List<String> depositDialogItemName = ["New item name", "Nome del nuovo elemento"];
@@ -63,8 +64,8 @@ const List<String> depositDialogItemLocationHint = ["Choose Location", "Scegli l
 
 List<String> getDepositPopupMenu() {
   List<String> popupMenuItemNames = [];
-  popupMenuItemNames.add(addButtonDepositItem.elementAt(selectedLanguage));
-  popupMenuItemNames.add(deleteButtonDepositItems.elementAt(selectedLanguage));
+  popupMenuItemNames.add(addDepositItemPopupMenu.elementAt(selectedLanguage));
+  popupMenuItemNames.add(deleteDepositItemsPopupMenu.elementAt(selectedLanguage));
 
   return popupMenuItemNames;
 }

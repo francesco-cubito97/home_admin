@@ -7,6 +7,7 @@ class DepositItemModel
   final String name;
   final int location;
   int isPresent;
+  bool selected = false;
 
   DepositItemModel({ this.itemID=0, required this.name, required this.location, this.isPresent = 1 });
 

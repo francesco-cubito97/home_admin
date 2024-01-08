@@ -3,38 +3,67 @@ import 'package:home_adm/database/data_models/deposit_item_model.dart';
 
 // Inside the deposit there will be a checkable element
 class DepositItem extends StatelessWidget {
-  DepositItem({required this.item, required this.onItemStateChanged})
+  DepositItem({required this.item, required this.onItemStateChanged, this.deleteView = false})
       : super(key: ObjectKey(item));
 
   final DepositItemModel item;
   final void Function(DepositItemModel) onItemStateChanged;
+  final bool deleteView;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final backgroundColor = item.isPresent == 0 ? theme.primaryColorLight : theme.cardColor;
+    final deleteIconBackgroundColor = item.selected == true ? theme.primaryColorLight : theme.cardColor;
+    final deleteIcon = item.selected == true ? Icons.check_box_outlined : Icons.check_box_outline_blank;
+    if(deleteView) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: ListTile(
+          leading: IconButton(
+              icon: Icon(deleteIcon),
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: ListTile(
-        leading: IconButton(
-            icon: Icon(Icons.add_shopping_cart),
-
-            style: IconButton.styleFrom(
-              // Associate a different Background color based on the state
-              backgroundColor: backgroundColor, 
-            ),
-            onPressed: () {
-              onItemStateChanged(item);
-        }),
-        title: Text(
-            item.name
+              style: IconButton.styleFrom(
+                // Associate a different Background color based on the state
+                backgroundColor: deleteIconBackgroundColor, 
+              ),
+              onPressed: () {
+                onItemStateChanged(item);
+          }),
+          title: Text(
+              item.name
+          ),
+          onTap: () {
+            onItemStateChanged(item);
+          }
         ),
-        onTap: () {
-          onItemStateChanged(item);
-        }
-      ),
-    );
+      );
+      
+    }
+    else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: ListTile(
+          leading: IconButton(
+              icon: Icon(Icons.add_shopping_cart),
+
+              style: IconButton.styleFrom(
+                // Associate a different Background color based on the state
+                backgroundColor: backgroundColor, 
+              ),
+              onPressed: () {
+                onItemStateChanged(item);
+          }),
+          title: Text(
+              item.name
+          ),
+          onTap: () {
+            onItemStateChanged(item);
+          }
+        ),
+      );
+    }
+    
   }
 }
 
