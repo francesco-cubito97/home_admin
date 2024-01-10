@@ -88,6 +88,21 @@ Future<void> updateItemPresence(DepositItemModel item) async
   );
 }
 
+Future<void> updateMultipleItemPresence(List<DepositItemModel> items) async
+{
+  final db = await getDatabase();
+
+  for (DepositItemModel item in items) {
+    await db.update(
+      "items",
+      item.toMap(),
+      where: "itemID = ?",
+      whereArgs: [item.itemID]
+    );
+  }
+  
+}
+
 Future<void> deleteItems(List<DepositItemModel> itemsToDelete) async
 {
   final db = await getDatabase();

@@ -71,3 +71,6 @@ List<String> getDepositPopupMenu() {
 }
 
 const List<String> depositDialogSubmitButton = ["Submit", "Crea"];
+
+// Shopping Page elements
+const List<String> saveBuyiedItemsButton = ["Save", "Salva"];

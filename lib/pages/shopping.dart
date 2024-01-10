@@ -6,7 +6,6 @@ import 'package:home_adm/components/nested_lists.dart';
 import 'package:home_adm/globals.dart' as constants;
 import 'package:home_adm/database/database_manager.dart' as db;
 
-
 // I should create a list of elements setted as not present inside the deposit.
 
 // It is really similar to the deposit with the difference that it receives the
@@ -21,30 +20,27 @@ class ShoppingPage extends StatefulWidget {
 }
 
 class _ShoppingPageState extends State<ShoppingPage> {
-  
-  List <DepositItemModel> sideboardList = [];
-  List <DepositItemModel> freshfoodList = [];
-  List <DepositItemModel> refrigeratorList = [];
-  List <DepositItemModel> freezerList = [];
-  List <DepositItemModel> otherItemsList = [];
+  List<DepositItemModel> sideboardList = [];
+  List<DepositItemModel> freshfoodList = [];
+  List<DepositItemModel> refrigeratorList = [];
+  List<DepositItemModel> freezerList = [];
+  List<DepositItemModel> otherItemsList = [];
 
   bool loading = true;
 
-  void _refreshData({bool refreshAll = false}) async 
-  {
+  List<DepositItemModel> itemsToSave = [];
+
+  void _refreshData({bool refreshAll = false}) async {
     final data = await db.getNotPresentItems();
 
-    if(refreshAll)
-    {
-      List <DepositItemModel> temporarySideboardList = [];
-      List <DepositItemModel> temporaryFreshFoodList = [];
-      List <DepositItemModel> temporaryRefrigeratorList = [];
-      List <DepositItemModel> temporaryFreezerList = [];
-      List <DepositItemModel> temporaryOtherItemsList = [];
+    if (refreshAll) {
+      List<DepositItemModel> temporarySideboardList = [];
+      List<DepositItemModel> temporaryFreshFoodList = [];
+      List<DepositItemModel> temporaryRefrigeratorList = [];
+      List<DepositItemModel> temporaryFreezerList = [];
+      List<DepositItemModel> temporaryOtherItemsList = [];
 
-      for(DepositItemModel item in data)
-      {
- 
+      for (DepositItemModel item in data) {
         // Add it to the correct list
         switch (item.location) {
           case constants.freezerListIndex:
@@ -64,7 +60,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             break;
           default:
         }
-      
+
         // And update the state to refresh the page
         setState(() {
           freezerList = temporaryFreezerList;
@@ -73,26 +69,21 @@ class _ShoppingPageState extends State<ShoppingPage> {
           sideboardList = temporarySideboardList;
           otherItemsList = temporaryOtherItemsList;
         });
-        
       }
     }
 
     setState(() {
       loading = !loading;
     });
-
-  } 
-
+  }
 
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
     _refreshData(refreshAll: true);
   }
 
-  List<DepositItemModel> getItemListByIndex(int listIndex)
-  {
+  List<DepositItemModel> getItemListByIndex(int listIndex) {
     switch (listIndex) {
       case constants.freezerListIndex:
         return freezerList;
@@ -103,16 +94,17 @@ class _ShoppingPageState extends State<ShoppingPage> {
       case constants.sideboardListIndex:
         return sideboardList;
       case constants.otherItemsListIndex:
-        return otherItemsList; 
-        
+        return otherItemsList;
+
       default:
         return [];
     }
   }
 
-  void _removeItemFromList(DepositItemModel itemToRemove) 
-  {
-    switch (itemToRemove.location) {
+  void _removeItemsFromList(List<DepositItemModel> itemsToRemove) {
+    
+    for(DepositItemModel itemToRemove in itemsToRemove) {
+      switch (itemToRemove.location) {
       case constants.freezerListIndex:
         freezerList.remove(itemToRemove);
         break;
@@ -120,61 +112,119 @@ class _ShoppingPageState extends State<ShoppingPage> {
       case constants.refrigeratorListIndex:
         refrigeratorList.remove(itemToRemove);
         break;
-      
+
       case constants.freshFoodListIndex:
         freshfoodList.remove(itemToRemove);
         break;
-      
+
       case constants.sideboardListIndex:
         sideboardList.remove(itemToRemove);
         break;
-      
+
       case constants.otherItemsListIndex:
         otherItemsList.remove(itemToRemove);
         break;
 
       default:
     }
+    }
+    
   }
 
-  void _toggleItemPresence(DepositItemModel item) async
-  {
-    item.isPresent = (item.isPresent + 1)%2;
+  void _toggleItemPresence(DepositItemModel item) async {
+    item.isPresent = (item.isPresent + 1) % 2;
+
+    // Insert in the list of elements to save
+    if(item.isPresent != 0 && !itemsToSave.contains(item))
+    {
+      setState(() {
+        itemsToSave.add(item);
+      });
+    }
+    else if(item.isPresent == 0 && itemsToSave.contains(item))
+    {
+      setState(() {
+        itemsToSave.remove(item);
+      });
+    }
 
     // Update the value on the database
-    await db.updateItemPresence(item);
+    //await db.updateItemPresence(item);
 
-    // Remove from view
-    //_removeItemFromList(item);
-
-    // Refresh everything
-    _refreshData();
   }
 
-   @override
+  void saveAndClean() async {
+    // Update the values on database
+    await db.updateMultipleItemPresence(itemsToSave);
+
+    _removeItemsFromList(itemsToSave);
+    
+    setState(() {
+      itemsToSave = [];
+    });
+
+    _refreshData(refreshAll: true);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    void Function()? onSavePressedFunction = itemsToSave.isNotEmpty ? saveAndClean : null;
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(constants.shoppingCartPageTitle[constants.selectedLanguage])
-        ),
-        body: CustomScrollView(
-          slivers: <Widget> [
-            
-            SliverList(
+      appBar: AppBar(
+          title: Text(
+              constants.shoppingCartPageTitle[constants.selectedLanguage])),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverList(
               delegate: SliverChildListDelegate([
-                NestedList(itemListTitle: constants.listDepositTypeSideboard[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.sideboardListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
-                NestedList(itemListTitle: constants.listDepositTypeFreezer[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.freezerListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
-                NestedList(itemListTitle: constants.listDepositTypeRefrigerator[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.refrigeratorListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
-                NestedList(itemListTitle: constants.listDepositTypeFreshFoods[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.freshFoodListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
-                NestedList(itemListTitle: constants.listDepositTypeOther[constants.selectedLanguage], itemsWidget: getItemListByIndex(constants.otherItemsListIndex).map((DepositItemModel item) => ShoppingItem(item: item, onItemStateChanged: _toggleItemPresence)).toList()),
-                SizedBox(height: 100.0)
-              ])
-            ),
-
-            
-            ],
-        ),
-      );
+            NestedList(
+                itemListTitle: constants
+                    .listDepositTypeSideboard[constants.selectedLanguage],
+                itemsWidget: getItemListByIndex(constants.sideboardListIndex)
+                    .map((DepositItemModel item) => ShoppingItem(
+                        item: item, onItemStateChanged: _toggleItemPresence))
+                    .toList()),
+            NestedList(
+                itemListTitle: constants
+                    .listDepositTypeFreezer[constants.selectedLanguage],
+                itemsWidget: getItemListByIndex(constants.freezerListIndex)
+                    .map((DepositItemModel item) => ShoppingItem(
+                        item: item, onItemStateChanged: _toggleItemPresence))
+                    .toList()),
+            NestedList(
+                itemListTitle: constants
+                    .listDepositTypeRefrigerator[constants.selectedLanguage],
+                itemsWidget: getItemListByIndex(constants.refrigeratorListIndex)
+                    .map((DepositItemModel item) => ShoppingItem(
+                        item: item, onItemStateChanged: _toggleItemPresence))
+                    .toList()),
+            NestedList(
+                itemListTitle: constants
+                    .listDepositTypeFreshFoods[constants.selectedLanguage],
+                itemsWidget: getItemListByIndex(constants.freshFoodListIndex)
+                    .map((DepositItemModel item) => ShoppingItem(
+                        item: item, onItemStateChanged: _toggleItemPresence))
+                    .toList()),
+            NestedList(
+                itemListTitle:
+                    constants.listDepositTypeOther[constants.selectedLanguage],
+                itemsWidget: getItemListByIndex(constants.otherItemsListIndex)
+                    .map((DepositItemModel item) => ShoppingItem(
+                        item: item, onItemStateChanged: _toggleItemPresence))
+                    .toList()),
+            SizedBox(height: 100.0)
+          ])),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Theme.of(context).colorScheme.onPrimary),
+            onPressed: onSavePressedFunction,
+            child: Text(constants.saveBuyiedItemsButton[constants.selectedLanguage]),
+          ),
+      ),
+    );
   }
 }

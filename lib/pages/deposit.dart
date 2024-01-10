@@ -43,6 +43,7 @@ class _DepositPageState extends State<DepositPage> {
   // List of items must be deleted
   List<DepositItemModel> itemsToDelete = [];
 
+
   void _refreshData({bool refreshAll = false}) async {
     final data = await db.getItems();
 
@@ -181,13 +182,14 @@ class _DepositPageState extends State<DepositPage> {
     // Delete items from the database
     await db.deleteItems(itemsToDelete);
 
-    // Set the view
+    // Refresh everything
+    _refreshData(refreshAll: true);
+
+    // Set the simple view
     setState(() {
         deleteItemsViewSelected = false;
+        itemsToDelete = [];
     });
-    
-    // Refresh everything
-    _refreshData();
   }
 
 
@@ -234,6 +236,8 @@ class _DepositPageState extends State<DepositPage> {
     
     // Simple list view to add element in the shopping page
     if(deleteItemsViewSelected == false) {
+      //void Function()? onSavePressedFunction = itemsToBuy.isNotEmpty ? saveAndDelete : null;
+
       return Scaffold(
         appBar: AppBar(
           title: Text(constants.depositPageTitle[constants.selectedLanguage]),
@@ -289,23 +293,22 @@ class _DepositPageState extends State<DepositPage> {
             ])),
           ],
         ),
-        // floatingActionButton: ElevatedButton(
-        //   onPressed: () async {
-        //     final FormResult? newItem = await openDepositDialog();
-        //     if (newItem == null ||
-        //         newItem.choosenItemName.isEmpty ||
-        //         newItem.choosenDepositList.isEmpty) return;
-
-        //     // Add the new created item to the correspondent list
-        //     addNewItem(newItem);
-        //   },
-        //   child: Text(constants.addButtonDepositItem[constants.selectedLanguage]),
-        // ),
+        // bottomNavigationBar: 
+        //   Padding(
+        //     padding: const EdgeInsets.all(8.0),
+        //     child: ElevatedButton(
+        //         style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Theme.of(context).colorScheme.onPrimary),
+        //         onPressed: onSavePressedFunction,
+        //         child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
+        //       ),
+        //   ),
       );
     }
 
     // Delete items view
     else {
+      void Function()? onDeletePressedFunction = itemsToDelete.isNotEmpty ? saveAndDelete : null;
+
       return Scaffold(
         appBar: AppBar(
           title: Text(constants.depositPageTitle[constants.selectedLanguage]),
@@ -390,7 +393,8 @@ class _DepositPageState extends State<DepositPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-                onPressed: saveAndDelete,
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Theme.of(context).colorScheme.onPrimary),
+                onPressed: onDeletePressedFunction,
                 child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
               ),
           ),
