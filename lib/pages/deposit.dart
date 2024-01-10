@@ -38,9 +38,9 @@ class _DepositPageState extends State<DepositPage> {
   List<DepositItemModel> otherItemsList = [];
 
   bool loading = true;
-  bool deleteItemsSelected = false;
+  bool deleteItemsViewSelected = false;
 
-  // TODO: list of items must be deleted
+  // List of items must be deleted
   List<DepositItemModel> itemsToDelete = [];
 
   void _refreshData({bool refreshAll = false}) async {
@@ -159,20 +159,35 @@ class _DepositPageState extends State<DepositPage> {
     _refreshData();
   }
 
-  void _toggleDepositItemSelection(DepositItemModel item) async {
+  // Function to decide what item to delete
+  void _toggleDepositItemSelection(DepositItemModel item) {
     item.selected = !item.selected;
 
-    // TODO: Add in the list of elements that must be deleted
+    if(item.selected && !itemsToDelete.contains(item))
+    {
+      setState(() {
+        itemsToDelete.add(item);
+      });
+    }
+    else if(!item.selected && itemsToDelete.contains(item))
+    {
+      setState(() {
+        itemsToDelete.remove(item);
+      });
+    }   
+  }
 
+  void saveAndDelete() async {
+    // Delete items from the database
+    await db.deleteItems(itemsToDelete);
+
+    // Set the view
     setState(() {
-      loading = false;
+        deleteItemsViewSelected = false;
     });
-
-    // Update the value on the database
-    //await db.updateItemPresence(item);
-
+    
     // Refresh everything
-    //_refreshData();
+    _refreshData();
   }
 
 
@@ -208,7 +223,7 @@ class _DepositPageState extends State<DepositPage> {
 
     else if(index == constants.PopupMenuItem.deleteItems.index) {
       setState(() {
-        deleteItemsSelected = true;
+        deleteItemsViewSelected = true;
       });
     }
     
@@ -218,7 +233,7 @@ class _DepositPageState extends State<DepositPage> {
   Widget build(BuildContext context) {
     
     // Simple list view to add element in the shopping page
-    if(deleteItemsSelected == false) {
+    if(deleteItemsViewSelected == false) {
       return Scaffold(
         appBar: AppBar(
           title: Text(constants.depositPageTitle[constants.selectedLanguage]),
@@ -371,15 +386,15 @@ class _DepositPageState extends State<DepositPage> {
             ])),
           ],
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Container(
-          height: 50, 
-          margin: EdgeInsets.all(10), 
-          child: ElevatedButton(
-            onPressed: ()  {},
-            child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
+        bottomNavigationBar: 
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+                onPressed: saveAndDelete,
+                child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
+              ),
           ),
-        ) 
+        
       );
     }
   }

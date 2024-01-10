@@ -14,22 +14,19 @@ class DepositItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final backgroundColor = item.isPresent == 0 ? theme.primaryColorLight : theme.cardColor;
-    final deleteIconBackgroundColor = item.selected == true ? theme.primaryColorLight : theme.cardColor;
+    final deleteIconBackgroundColor = item.selected == true ? theme.primaryColor : theme.cardColor;
     final deleteIcon = item.selected == true ? Icons.check_box_outlined : Icons.check_box_outline_blank;
+
     if(deleteView) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: ListTile(
-          leading: IconButton(
-              icon: Icon(deleteIcon),
-
-              style: IconButton.styleFrom(
-                // Associate a different Background color based on the state
-                backgroundColor: deleteIconBackgroundColor, 
-              ),
-              onPressed: () {
+          leading: Checkbox (
+              value: item.selected, 
+              onChanged: (bool? value) {
                 onItemStateChanged(item);
-          }),
+              },
+            ),
           title: Text(
               item.name
           ),
