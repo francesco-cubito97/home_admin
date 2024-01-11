@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // change the visualization of a page.
 
 class PopupMenu extends StatelessWidget {
-  final List<String> popupMenuItemsNames;
+  final Map<String, int> popupMenuItemsNames;
   final void Function(int itemIndex) popupMenuCallback;
 
   PopupMenu({
@@ -33,8 +33,8 @@ class PopupMenu extends StatelessWidget {
       menuChildren: List<MenuItemButton>.generate(
         popupMenuItemsNames.length,
         (int index) => MenuItemButton(
-          onPressed: () => popupMenuCallback(index),
-          child: Text(popupMenuItemsNames.elementAt(index)),
+          onPressed: () => popupMenuCallback(popupMenuItemsNames.values.elementAt(index)),
+          child: Text(popupMenuItemsNames.keys.elementAt(index)),
         ),
       ),
     );

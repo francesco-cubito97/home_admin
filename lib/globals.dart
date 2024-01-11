@@ -51,9 +51,11 @@ String getListNameByIndex(int indexOfList)
 }
 
 // Deposit Page elements
-enum PopupMenuItem { addNewItem, deleteItems }
+enum PopupMenuItem { addNewItem, deleteItems, listItems }
 const List<String> addDepositItemPopupMenu = ["Add new item", "Aggiungi un elemento"];
 const List<String> deleteDepositItemsPopupMenu = ["Delete items", "Elimina elementi"];
+const List<String> listDepositItemsPopupMenu = ["List items", "Visualizza elementi"];
+
 const List<String> deleteSelectedItemsButton = ["Delete", "Elimina"];
 
 const List<String> depositDialogTitle = ["Create a new item", "Crea un nuovo elemento"];
@@ -62,12 +64,21 @@ const List<String> depositDialogItemNameHint = ["Enter name", "Inserisci nome"];
 const List<String> depositDialogItemLocation = ["New item location", "Locazione del nuovo elemento"];
 const List<String> depositDialogItemLocationHint = ["Choose Location", "Scegli la locazione"];
 
-List<String> getDepositPopupMenu() {
-  List<String> popupMenuItemNames = [];
-  popupMenuItemNames.add(addDepositItemPopupMenu.elementAt(selectedLanguage));
-  popupMenuItemNames.add(deleteDepositItemsPopupMenu.elementAt(selectedLanguage));
+// Return a map of popup menu item with its index
+Map<String, int> getDepositPopupMenu(int currentView) {
+  Map<String, int> popupMenuItem = {};
 
-  return popupMenuItemNames;
+  if(currentView == PopupMenuItem.deleteItems.index) {
+    popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItem.index;
+    popupMenuItem[listDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.listItems.index;
+  
+  } else if(currentView == PopupMenuItem.listItems.index) {
+    popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItem.index;
+    popupMenuItem[deleteDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.deleteItems.index;
+    
+  }
+  
+  return popupMenuItem;
 }
 
 const List<String> depositDialogSubmitButton = ["Submit", "Crea"];

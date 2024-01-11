@@ -24,10 +24,10 @@ class DepositPage extends StatefulWidget {
 }
 
 class _DepositPageState extends State<DepositPage> {
-
-  // Popup menu settings
-  List<String> popupMenuItemNames = constants.getDepositPopupMenu();
   
+  // Popup menu settings
+  Map<String, int> popupMenuItemNames = constants.getDepositPopupMenu(constants.PopupMenuItem.listItems.index);
+
   int depositPageType = -1;
 
   // List containing all the lists
@@ -226,6 +226,14 @@ class _DepositPageState extends State<DepositPage> {
     else if(index == constants.PopupMenuItem.deleteItems.index) {
       setState(() {
         deleteItemsViewSelected = true;
+        popupMenuItemNames = constants.getDepositPopupMenu(index);
+      });
+    }
+
+    else if(index == constants.PopupMenuItem.listItems.index) {
+      setState(() {
+        deleteItemsViewSelected = false;
+        popupMenuItemNames = constants.getDepositPopupMenu(index);
       });
     }
     
@@ -233,10 +241,8 @@ class _DepositPageState extends State<DepositPage> {
 
   @override
   Widget build(BuildContext context) {
-    
     // Simple list view to add element in the shopping page
     if(deleteItemsViewSelected == false) {
-      //void Function()? onSavePressedFunction = itemsToBuy.isNotEmpty ? saveAndDelete : null;
 
       return Scaffold(
         appBar: AppBar(
@@ -293,15 +299,6 @@ class _DepositPageState extends State<DepositPage> {
             ])),
           ],
         ),
-        // bottomNavigationBar: 
-        //   Padding(
-        //     padding: const EdgeInsets.all(8.0),
-        //     child: ElevatedButton(
-        //         style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Theme.of(context).colorScheme.onPrimary),
-        //         onPressed: onSavePressedFunction,
-        //         child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
-        //       ),
-        //   ),
       );
     }
 
