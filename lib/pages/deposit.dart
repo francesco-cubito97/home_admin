@@ -26,7 +26,7 @@ class DepositPage extends StatefulWidget {
 class _DepositPageState extends State<DepositPage> {
   
   // Popup menu settings
-  Map<String, int> popupMenuItemNames = constants.getDepositPopupMenu(constants.PopupMenuItem.listItems.index);
+  Map<String, int> popupMenuItemNames = constants.getDepositPopupMenu(constants.PopupMenuItem.listItemsView.index);
 
   int depositPageType = -1;
 
@@ -213,7 +213,7 @@ class _DepositPageState extends State<DepositPage> {
 
   updatePage(int index) async {
     
-    if(index == constants.PopupMenuItem.addNewItem.index) {
+    if(index == constants.PopupMenuItem.addNewItemView.index) {
       final FormResult? newItem = await openDepositDialog();
           if (newItem == null ||
               newItem.choosenItemName.isEmpty ||
@@ -223,14 +223,14 @@ class _DepositPageState extends State<DepositPage> {
           addNewItem(newItem);
     }
 
-    else if(index == constants.PopupMenuItem.deleteItems.index) {
+    else if(index == constants.PopupMenuItem.deleteItemsView.index) {
       setState(() {
         deleteItemsViewSelected = true;
         popupMenuItemNames = constants.getDepositPopupMenu(index);
       });
     }
 
-    else if(index == constants.PopupMenuItem.listItems.index) {
+    else if(index == constants.PopupMenuItem.listItemsView.index) {
       setState(() {
         deleteItemsViewSelected = false;
         popupMenuItemNames = constants.getDepositPopupMenu(index);

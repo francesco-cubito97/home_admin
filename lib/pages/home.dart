@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_adm/pages/deposit.dart';
+import 'package:home_adm/pages/meals.dart';
 import 'package:home_adm/pages/shopping.dart';
 
 class HomePage extends StatefulWidget {
@@ -50,7 +51,12 @@ class _HomePageState extends State<HomePage> {
               children: <Widget>[
                 // Inside this page is possible to schedule meals in a month
                 // week by week and day by day.
-                HomeButton(icon: const Icon(Icons.dinner_dining_outlined), onPressed: () {}),
+                HomeButton(icon: const Icon(Icons.dinner_dining_outlined), onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MealsPage()),
+                  );
+                }),
                 
                 // Inside this page is possible to schedule different activities
                 // to some family component.

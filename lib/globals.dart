@@ -1,24 +1,15 @@
 
+/// Shared globals
 String databaseLocation = "items_database.db";
 
-enum Languages {eng, ita}
-
-int selectedLanguage = Languages.eng.index;
-  
 // List containing the same object in multiple languages:
 //    0 - English
 //    1 - Italian
+enum Languages {eng, ita}
+
+int selectedLanguage = Languages.eng.index;
+
 const List<String> listLanguages = ["English", "Italiano"];
-
-const List<String> depositPageTitle = ["Deposit", "Dispensa"];
-const List<String> shoppingCartPageTitle = ["Shopping Cart", "Carrello"];
-
-//static const List< List<String> > allPages = [depositPageTitle, shoppingCartPageTitle];
-
-const int depositPageIndex       = 0;
-const int shoppingCartPageIndex  = 1;
-const int menuPageIndex          = 2;
-const int billsPageIndex         = 3;
 
 const int freezerListIndex      = 0;
 const int refrigeratorListIndex = 1;
@@ -50,8 +41,11 @@ String getListNameByIndex(int indexOfList)
   return allLists[indexOfList][selectedLanguage];
 }
 
-// Deposit Page elements
-enum PopupMenuItem { addNewItem, deleteItems, listItems }
+enum PopupMenuItem { mainView, addNewItemView, updateItemsView, deleteItemsView, listItemsView }
+
+/// Deposit Page elements
+const List<String> depositPageTitle = ["Deposit", "Dispensa"];
+
 const List<String> addDepositItemPopupMenu = ["Add new item", "Aggiungi un elemento"];
 const List<String> deleteDepositItemsPopupMenu = ["Delete items", "Elimina elementi"];
 const List<String> listDepositItemsPopupMenu = ["List items", "Visualizza elementi"];
@@ -68,13 +62,13 @@ const List<String> depositDialogItemLocationHint = ["Choose Location", "Scegli l
 Map<String, int> getDepositPopupMenu(int currentView) {
   Map<String, int> popupMenuItem = {};
 
-  if(currentView == PopupMenuItem.deleteItems.index) {
-    popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItem.index;
-    popupMenuItem[listDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.listItems.index;
+  if(currentView == PopupMenuItem.deleteItemsView.index) {
+    popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItemView.index;
+    popupMenuItem[listDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.listItemsView.index;
   
-  } else if(currentView == PopupMenuItem.listItems.index) {
-    popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItem.index;
-    popupMenuItem[deleteDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.deleteItems.index;
+  } else if(currentView == PopupMenuItem.listItemsView.index) {
+    popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItemView.index;
+    popupMenuItem[deleteDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.deleteItemsView.index;
     
   }
   
@@ -83,5 +77,37 @@ Map<String, int> getDepositPopupMenu(int currentView) {
 
 const List<String> depositDialogSubmitButton = ["Submit", "Crea"];
 
-// Shopping Page elements
+/// Shopping Page elements
+const List<String> shoppingCartPageTitle = ["Shopping Cart", "Carrello"];
 const List<String> saveBuyiedItemsButton = ["Save", "Salva"];
+
+
+/// Meals Page elements
+
+const List<String> mealsPageTitle = ["Meals schedule", "Pasti giornalieri"];
+
+const List<String> addRecipeItemPopupMenu = ["Add new recipe", "Aggiungi una ricetta"];
+const List<String> deleteRecipeItemsPopupMenu = ["Delete recipes", "Elimina ricetta"];
+const List<String> listRecipeItemsPopupMenu = ["List recipes", "Visualizza ricette"];
+
+// Return a map of popup menu item with its index
+Map<String, int> getMealsPopupMenu(int currentView) {
+  Map<String, int> popupMenuItem = {};
+
+  if(currentView == PopupMenuItem.mainView.index) {
+    popupMenuItem[listDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.listItemsView.index;
+    popupMenuItem[addRecipeItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItemView.index;
+    popupMenuItem[deleteRecipeItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.deleteItemsView.index;
+
+  } else if(currentView == PopupMenuItem.deleteItemsView.index) {
+    popupMenuItem[addRecipeItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItemView.index;
+    popupMenuItem[listDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.listItemsView.index;
+  
+  } else if(currentView == PopupMenuItem.listItemsView.index) {
+    popupMenuItem[addRecipeItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItemView.index;
+    popupMenuItem[deleteRecipeItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.deleteItemsView.index;
+    
+  }
+  
+  return popupMenuItem;
+}
