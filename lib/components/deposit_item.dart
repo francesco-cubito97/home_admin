@@ -13,14 +13,13 @@ class DepositItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final backgroundColor = item.isPresent == 0 ? theme.primaryColorLight : theme.cardColor;
-    final deleteIconBackgroundColor = item.selected == true ? theme.primaryColor : theme.cardColor;
-    final deleteIcon = item.selected == true ? Icons.check_box_outlined : Icons.check_box_outline_blank;
+    final backgroundColor = item.isPresent == 0 ? theme.colorScheme.secondary : theme.colorScheme.tertiary;
 
     if(deleteView) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: ListTile(
+          tileColor: theme.colorScheme.tertiary,
           leading: Checkbox (
               value: item.selected, 
               onChanged: (bool? value) {
@@ -41,6 +40,7 @@ class DepositItem extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: ListTile(
+          tileColor: theme.colorScheme.tertiary,
           leading: IconButton(
               icon: Icon(Icons.add_shopping_cart),
 

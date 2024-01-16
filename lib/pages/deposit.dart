@@ -241,11 +241,17 @@ class _DepositPageState extends State<DepositPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     // Simple list view to add element in the shopping page
     if(deleteItemsViewSelected == false) {
 
       return Scaffold(
+        backgroundColor: theme.colorScheme.primary,
         appBar: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
+
           title: Text(constants.depositPageTitle[constants.selectedLanguage]),
           actions: <Widget>[
             PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePage(itemIndex))
@@ -307,7 +313,11 @@ class _DepositPageState extends State<DepositPage> {
       void Function()? onDeletePressedFunction = itemsToDelete.isNotEmpty ? saveAndDelete : null;
 
       return Scaffold(
+        backgroundColor: theme.colorScheme.primary,
         appBar: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
+
           title: Text(constants.depositPageTitle[constants.selectedLanguage]),
           actions: <Widget>[
             PopupMenu(popupMenuItemsNames: popupMenuItemNames, popupMenuCallback: (itemIndex) => updatePage(itemIndex))
@@ -386,15 +396,14 @@ class _DepositPageState extends State<DepositPage> {
             ])),
           ],
         ),
-        bottomNavigationBar: 
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Theme.of(context).colorScheme.onPrimary),
-                onPressed: onDeletePressedFunction,
-                child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
-              ),
-          ),
+        persistentFooterButtons: [
+          FilledButton(
+            clipBehavior: Clip.antiAlias,
+              onPressed: onDeletePressedFunction,
+              child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
+            ),
+        ]
+          
         
       );
     }

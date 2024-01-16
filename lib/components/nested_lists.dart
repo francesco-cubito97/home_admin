@@ -35,7 +35,7 @@ class NestedList extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
          Container(
-              color: theme.colorScheme.tertiary,
+              color: theme.colorScheme.secondary,
               alignment: Alignment.center,
               height: 50,
               child: Text(itemListTitle),

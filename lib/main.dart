@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, secondary: Colors.amber, tertiary: const Color.fromARGB(129, 244, 67, 54)),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.black, primary: Color.fromARGB(255, 37, 37, 37), secondary: Color.fromARGB(255, 99, 255, 146), tertiary: Color.fromARGB(255, 255, 255, 255)),
       ),
       home: const HomePage(title: 'HomeAdm'),
       

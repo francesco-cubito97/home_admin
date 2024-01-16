@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:home_adm/globals.dart' as constants;
-import 'package:home_adm/components/card.dart';
+import 'package:home_adm/components/calendar_card.dart';
 
 import '../components/popup_menu.dart';
 
@@ -27,7 +27,9 @@ class _MealsPageState extends State<MealsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.primary,
       appBar: AppBar(
         title: Text(constants.mealsPageTitle[constants.selectedLanguage]),
         actions: <Widget>[

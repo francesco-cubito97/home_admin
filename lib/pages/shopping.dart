@@ -169,9 +169,12 @@ class _ShoppingPageState extends State<ShoppingPage> {
   @override
   Widget build(BuildContext context) {
     void Function()? onSavePressedFunction = itemsToSave.isNotEmpty ? saveAndClean : null;
-
+    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.primary,
       appBar: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
           title: Text(
               constants.shoppingCartPageTitle[constants.selectedLanguage])),
       body: CustomScrollView(
