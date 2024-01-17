@@ -8,21 +8,27 @@ import 'package:path/path.dart';
 
 Future<Database> getDatabase() async {
   return openDatabase(
-  // Set the path to the database. Note: Using the `join` function from the
-  // `path` package is best practice to ensure the path is correctly
-  // constructed for each platform.
-  join(await getDatabasesPath(), constants.databaseLocation),
+    // Set the path to the database. Note: Using the `join` function from the
+    // `path` package is best practice to ensure the path is correctly
+    // constructed for each platform.
+    join(await getDatabasesPath(), constants.databaseLocation),
 
-  onCreate: (db, version) {
-    // Run the CREATE TABLE statement on the database.
-    return db.execute(
-      'CREATE TABLE items(itemID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, location INTEGER, isPresent INTEGER)',
-    );
-  },
-  // Set the version. This executes the onCreate function and provides a
-  // path to perform database upgrades and downgrades.
-  version: 1,
-);
+    onCreate: (db, version) {
+      // Run the CREATE TABLE statement on the database.
+      db.execute(
+        'CREATE TABLE recipe_deposit(recipeID INTEGER, depositID INTEGER, PRIMARY KEY(recipeID, depositID))',
+      );
+      db.execute(
+        'CREATE TABLE recipes(itemID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, description TEXT)',
+      );
+      return db.execute(
+        'CREATE TABLE items(itemID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, location INTEGER, isPresent INTEGER)',
+      );
+    },
+    // Set the version. This executes the onCreate function and provides a
+    // path to perform database upgrades and downgrades.
+    version: 1,
+  );
 }
 
 
