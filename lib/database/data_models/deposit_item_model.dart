@@ -2,13 +2,15 @@ class DepositItemModel
 {
   // An element inside the deposit and inside the shopping cart has a name,
   // a location, and if it is present
-  final int itemID;
+  int itemID;
   final String name;
   final int location;
   int isPresent;
   bool selected = false;
 
   DepositItemModel({ this.itemID=0, required this.name, required this.location, this.isPresent = 1 });
+
+  void setID(int newID) { itemID = newID; }
 
   // Convert a deposit item into a Map. The keys must correspond to the names of the
   // columns in the database.

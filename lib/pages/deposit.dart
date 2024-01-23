@@ -26,7 +26,7 @@ class DepositPage extends StatefulWidget {
 class _DepositPageState extends State<DepositPage> {
   
   // Popup menu settings
-  Map<String, int> popupMenuItemNames = constants.getDepositPopupMenu(constants.PopupMenuItem.listItemsView.index);
+  Map<String, int> popupMenuItemNames = constants.getDepositPopupMenu(constants.PopupMenuItem.mainView.index);
 
   int depositPageType = -1;
 
@@ -42,7 +42,6 @@ class _DepositPageState extends State<DepositPage> {
 
   // List of items must be deleted
   List<DepositItemModel> itemsToDelete = [];
-
 
   void _refreshData({bool refreshAll = false}) async {
     final data = await db.getItems();
@@ -130,19 +129,29 @@ class _DepositPageState extends State<DepositPage> {
   void _addItemToItemListByIndex(int listIndex, DepositItemModel itemModel) {
     switch (listIndex) {
       case constants.freezerListIndex:
-        freezerList.add(itemModel);
+        setState(() {
+          freezerList.add(itemModel);
+        });
         break;
       case constants.refrigeratorListIndex:
-        refrigeratorList.add(itemModel);
+        setState(() {
+          refrigeratorList.add(itemModel);
+        });
         break;
       case constants.freshFoodListIndex:
-        freshfoodList.add(itemModel);
+        setState(() {
+          freshfoodList.add(itemModel);
+        });
         break;
       case constants.sideboardListIndex:
-        sideboardList.add(itemModel);
+        setState(() {
+          sideboardList.add(itemModel);
+        });
         break;
       case constants.otherItemsListIndex:
-        otherItemsList.add(itemModel);
+        setState(() {
+          otherItemsList.add(itemModel);
+        });
         break;
 
       default:
@@ -150,14 +159,53 @@ class _DepositPageState extends State<DepositPage> {
     }
   }
 
+  void updateList(DepositItemModel updatedItem) {
+    
+    switch (updatedItem.location) {
+      case constants.freezerListIndex:
+        int index = freezerList.indexWhere((item) => item.itemID == updatedItem.itemID);
+        setState(() {
+          freezerList.elementAt(index).isPresent = updatedItem.isPresent;
+        });
+        break;
+      case constants.refrigeratorListIndex:
+      int index = refrigeratorList.indexWhere((item) => item.itemID == updatedItem.itemID);
+        setState(() {
+          refrigeratorList.elementAt(index).isPresent = updatedItem.isPresent;
+        });
+        break;
+      case constants.freshFoodListIndex:
+      int index = freshfoodList.indexWhere((item) => item.itemID == updatedItem.itemID);
+        setState(() {
+          freshfoodList.elementAt(index).isPresent = updatedItem.isPresent;
+        });
+        break;
+      case constants.sideboardListIndex:
+      int index = sideboardList.indexWhere((item) => item.itemID == updatedItem.itemID);
+        setState(() {
+          sideboardList.elementAt(index).isPresent = updatedItem.isPresent;
+        });
+        break;
+      case constants.otherItemsListIndex:
+      int index = otherItemsList.indexWhere((item) => item.itemID == updatedItem.itemID);
+        setState(() {
+          otherItemsList.elementAt(index).isPresent = updatedItem.isPresent;
+        });
+        break;
+
+      default:
+        break;
+    }
+  
+  }
+
   void _toggleDepositItemPresence(DepositItemModel item) async {
     item.isPresent = (item.isPresent + 1) % 2;
 
     // Update the value on the database
-    await db.updateItemPresence(item);
+    int countUpdated = await db.updateItemPresence(item);
 
-    // Refresh everything
-    _refreshData();
+    updateList(item);
   }
 
   // Function to decide what item to delete
@@ -182,14 +230,15 @@ class _DepositPageState extends State<DepositPage> {
     // Delete items from the database
     await db.deleteItems(itemsToDelete);
 
-    // Refresh everything
-    _refreshData(refreshAll: true);
-
     // Set the simple view
     setState(() {
         deleteItemsViewSelected = false;
+        popupMenuItemNames = constants.getDepositPopupMenu(constants.PopupMenuItem.mainView.index);
         itemsToDelete = [];
     });
+
+    // Refresh everything
+    _refreshData(refreshAll: true);
   }
 
 
@@ -204,14 +253,12 @@ class _DepositPageState extends State<DepositPage> {
         isPresent: 1
       );
 
-    await db.insertNewItem(newItem);
+    newItem.setID(await db.insertNewItem(newItem));
 
     _addItemToItemListByIndex(listIndex, newItem);
-
-    _refreshData();
   }
 
-  updatePage(int index) async {
+  void updatePage(int index) async {
     
     if(index == constants.PopupMenuItem.addNewItemView.index) {
       final FormResult? newItem = await openDepositDialog();
@@ -386,7 +433,7 @@ class _DepositPageState extends State<DepositPage> {
                       .map(
                         (DepositItemModel item) => DepositItem(
                           item: item,
-                          onItemStateChanged: _toggleDepositItemPresence,
+                          onItemStateChanged: _toggleDepositItemSelection,
                           deleteView: true,
                         ),
                       )
@@ -396,19 +443,23 @@ class _DepositPageState extends State<DepositPage> {
             ])),
           ],
         ),
-        persistentFooterButtons: [
-          FilledButton(
-            clipBehavior: Clip.antiAlias,
-              onPressed: onDeletePressedFunction,
-              child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage]),
-            ),
-        ]
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            backgroundColor: theme.colorScheme.secondary,
+            foregroundColor: theme.colorScheme.onSecondary
+          ),
           
-        
+          onPressed: onDeletePressedFunction,
+          child: Text(constants.deleteSelectedItemsButton[constants.selectedLanguage],
+          style: TextStyle(fontSize: 25),),
+        ),
       );
     }
   }
 
+  // TODO: Externalize this
   Future<FormResult?> openDepositDialog() {
     FormResult formResult = FormResult(choosenItemName: "", 
                                        choosenDepositList: "");
@@ -467,6 +518,7 @@ class _DepositPageState extends State<DepositPage> {
   }
 }
 
+// TODO: Externalize this
 class DropdownList extends StatefulWidget {
   const DropdownList(
       {super.key,
@@ -524,49 +576,7 @@ class _DropdownListState extends State<DropdownList> {
   }
 }
 
-// Unificare in un unico widget gli oggetti textfield e dropdownbutton
-// class DepositForm extends StatefulWidget {
-//   const DepositForm({super.key});
-
-//   @override
-//   State<DepositForm> createState() => _DepositFormState();
-// }
-
-// class _DepositFormState extends State<DepositForm> {
-//   // Add a key to the form to make possible, in the future,
-//   // the validation in the elements of the form
-//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-//   // Add a controller for each text field
-//   //final List<TextEditingController> _controllers = [TextEditingController()];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Form(
-//         key: _formKey,
-//         child: Column(
-//           children: <Widget>[
-//             TextFormField(
-//               validator: (value) {
-//                 if (value == null || value.isEmpty)
-//                   return "Please enter some text";
-
-//                 return null;
-//               },
-//             ),
-//             ElevatedButton(
-//                 onPressed: () {
-//                   if (_formKey.currentState!.validate()) {
-//                     ScaffoldMessenger.of(context).showSnackBar(
-//                       const SnackBar(content: Text('Processing Data')),
-//                     );
-//                   }
-//                 },
-//                 child: Text("Submit"))
-//           ],
-//         ));
-//   }
-// }
+// TODO: Externalize this
 
 // Every object of this class will contain the result
 // deriving from the form
@@ -577,50 +587,3 @@ class FormResult {
   FormResult({required this.choosenItemName, required this.choosenDepositList});
 }
 
-
-
-// Pressing the popup menu button is possible to
-// change the visualization of deposit page.
-
-// This is the type used by the menu below.
-// enum PopupMenuItem { addNewItem, deleteItems }
-
-// class MenuAnchorExample extends StatefulWidget {
-//   const MenuAnchorExample({super.key});
-
-//   @override
-//   State<MenuAnchorExample> createState() => _MenuAnchorExampleState();
-// }
-
-// class _MenuAnchorExampleState extends State<MenuAnchorExample> {
-//   // This should come from the parent, because based on that
-//   // the deposit page should load other components.
-//   PopupMenuItem? selectedMenu;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MenuAnchor(
-//       builder: (BuildContext context, MenuController controller, Widget? child) {
-//         return IconButton(
-//           onPressed: () {
-//             if (controller.isOpen) {
-//               controller.close();
-//             } else {
-//               controller.open();
-//             }
-//           },
-//           icon: const Icon(Icons.more_vert),
-//           tooltip: 'Show menu',
-//         );
-//       },
-//       menuChildren: List<MenuItemButton>.generate(
-//         PopupMenuItem.values.length,
-//         (int index) => MenuItemButton(
-//           onPressed: () =>
-//               setState(() => selectedMenu = PopupMenuItem.values[index]),
-//           child: Text('Item ${index + 1}'),
-//         ),
-//       ),
-//     );
-//   }
-// }

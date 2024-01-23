@@ -220,14 +220,20 @@ class _ShoppingPageState extends State<ShoppingPage> {
           ])),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Theme.of(context).colorScheme.onPrimary),
-            onPressed: onSavePressedFunction,
-            child: Text(constants.saveBuyiedItemsButton[constants.selectedLanguage]),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            backgroundColor: theme.colorScheme.secondary,
+            foregroundColor: theme.colorScheme.onSecondary
           ),
-      ),
+          
+          onPressed: onSavePressedFunction,
+          child: Text(
+            constants.saveBuyiedItemsButton[constants.selectedLanguage],
+            style: TextStyle(fontSize: 25),
+          ),
+      )
     );
   }
 }

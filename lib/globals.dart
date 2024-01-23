@@ -66,7 +66,7 @@ Map<String, int> getDepositPopupMenu(int currentView) {
     popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItemView.index;
     popupMenuItem[listDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.listItemsView.index;
   
-  } else if(currentView == PopupMenuItem.listItemsView.index) {
+  } else if(currentView == PopupMenuItem.listItemsView.index || currentView == PopupMenuItem.mainView.index) {
     popupMenuItem[addDepositItemPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.addNewItemView.index;
     popupMenuItem[deleteDepositItemsPopupMenu.elementAt(selectedLanguage)] = PopupMenuItem.deleteItemsView.index;
     

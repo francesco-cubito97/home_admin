@@ -1,5 +1,7 @@
+import 'package:home_adm/database/data_models/recipe_to_deposit_model.dart';
 import 'package:home_adm/globals.dart' as constants;
 import 'package:home_adm/database/data_models/deposit_item_model.dart';
+import 'package:home_adm/database/data_models/recipe_item_model.dart';
 // Persistent memory management
 import 'package:sqflite/sqflite.dart';
 // Disk location management
@@ -33,7 +35,8 @@ Future<Database> getDatabase() async {
 
 
 // Define a function that inserts items into the database
-Future<void> insertNewItem(DepositItemModel item) async {
+// and returns the new inserted ID
+Future<int> insertNewItem(DepositItemModel item) async {
   // Get a reference to the database.
   final db = await getDatabase();
 
@@ -41,9 +44,35 @@ Future<void> insertNewItem(DepositItemModel item) async {
   // `conflictAlgorithm` to use in case the same dog is inserted twice.
   //
   // In this case, replace any previous data.
-  await db.insert(
+  return await db.insert(
     'items',
     item.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
+
+// Define a function that inserts items into the database
+Future<void> insertNewRecipe(RecipeItemModel recipe) async {
+  // Get a reference to the database.
+  final db = await getDatabase();
+
+  // Is necessary save also ingredients 
+  // selected from deposit to compose recipe
+  if(recipe.ingredients != null) {
+    for (DepositItemModel item in recipe.ingredients!) {
+      RecipeToDepositModel recipe2deposit = RecipeToDepositModel(recipeID: recipe.itemID, depositID: item.itemID);
+
+      await db.insert(
+        'recipe2deposit',
+        recipe2deposit.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+  }
+
+  await db.insert(
+    'recipes',
+    recipe.toMap(),
     conflictAlgorithm: ConflictAlgorithm.replace,
   );
 }
@@ -65,6 +94,54 @@ Future<List<DepositItemModel>> getItems() async
   });
 }
 
+Future<List<DepositItemModel>> getItemsByLocation(int location) async
+{
+  final db = await getDatabase();
+
+  // Query the table for all The Items.
+   final List<Map<String, dynamic>> maps = await db.query('items', where: "location = ?", whereArgs: [location]);
+
+  return List.generate(maps.length, (index) {
+    return DepositItemModel(
+      itemID: maps[index]["itemID"],
+      name: maps[index]["name"],
+      location: maps[index]["location"],
+      isPresent: maps[index]["isPresent"]
+    );
+  });
+}
+
+Future<List<DepositItemModel>> getAllIngredients(int recipeID) async {
+  final db = await getDatabase();
+  final List<Map<String, dynamic>> mapsIngredients = await db.query('recipe2deposit', where: "recipeID == ?", whereArgs: [recipeID]);
+
+  return List.generate(mapsIngredients.length, (index) => DepositItemModel(
+    itemID: mapsIngredients[index]["itemID"], 
+    name: mapsIngredients[index]["name"], 
+    location: mapsIngredients[index]["location"], 
+    isPresent: mapsIngredients[index]["isPresent"])
+  );
+}
+
+Future<List<RecipeItemModel>> getAllRecipes() async
+{
+  final db = await getDatabase();
+
+  // Query the table for all The recipes.
+  final List<Map<String, dynamic>> maps = await db.rawQuery("SELECT * FROM recipes LEFT JOIN recipe2deposit ON recipes.itemID = recipe2deposit.recipeID");
+  
+  // Fetch ingredients for each recipe 
+  //List<DepositItemModel> 
+
+  return List.generate(maps.length, (index) {
+    return RecipeItemModel(
+      itemID: maps[index]["itemID"],
+      name: maps[index]["name"],
+      description: maps[index]["description"],
+    );
+  });
+}
+
 Future<List<DepositItemModel>> getNotPresentItems() async
 {
   final db = await getDatabase();
@@ -82,16 +159,18 @@ Future<List<DepositItemModel>> getNotPresentItems() async
   });
 }
 
-Future<void> updateItemPresence(DepositItemModel item) async
+Future<int> updateItemPresence(DepositItemModel item) async
 {
   final db = await getDatabase();
 
-  await db.update(
+  int count = await db.update(
     "items",
     item.toMap(),
     where: "itemID = ?",
     whereArgs: [item.itemID]
   );
+
+  return count;
 }
 
 Future<void> updateMultipleItemPresence(List<DepositItemModel> items) async
