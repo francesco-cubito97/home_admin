@@ -15,17 +15,27 @@ Future<Database> getDatabase() async {
     // constructed for each platform.
     join(await getDatabasesPath(), constants.databaseLocation),
 
-    onCreate: (db, version) {
+    onCreate: (db, version) async {
       // Run the CREATE TABLE statement on the database.
-      db.execute(
-        'CREATE TABLE recipe_deposit(recipeID INTEGER, depositID INTEGER, PRIMARY KEY(recipeID, depositID))',
-      );
-      db.execute(
-        'CREATE TABLE recipes(itemID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, description TEXT)',
-      );
-      return db.execute(
+      await db.execute(
         'CREATE TABLE items(itemID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, location INTEGER, isPresent INTEGER)',
       );
+
+      await db.execute(
+        'CREATE TABLE recipes(itemID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, description TEXT)',
+      );
+
+      await db.execute(
+        '''CREATE TABLE recipe2deposit(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                       recipeID INTEGER, 
+                                       depositID INTEGER, 
+                                       FOREIGN KEY(recipeID) REFERENCES recipes(itemID),
+                                       FOREIGN KEY(depositID) REFERENCES items(itemID))
+        ''',
+      );
+      
+      
+      
     },
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -56,25 +66,28 @@ Future<void> insertNewRecipe(RecipeItemModel recipe) async {
   // Get a reference to the database.
   final db = await getDatabase();
 
+  // Create the recipe
+  await db.insert(    
+    'recipes',
+    recipe.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+
   // Is necessary save also ingredients 
   // selected from deposit to compose recipe
   if(recipe.ingredients != null) {
-    for (DepositItemModel item in recipe.ingredients!) {
-      RecipeToDepositModel recipe2deposit = RecipeToDepositModel(recipeID: recipe.itemID, depositID: item.itemID);
+    for (int itemID in recipe.ingredients!) {
+      RecipeToDepositModel recipeToDeposit = RecipeToDepositModel(recipeID: recipe.itemID, depositID: itemID);
 
       await db.insert(
         'recipe2deposit',
-        recipe2deposit.toMap(),
+        recipeToDeposit.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     }
   }
 
-  await db.insert(
-    'recipes',
-    recipe.toMap(),
-    conflictAlgorithm: ConflictAlgorithm.replace,
-  );
+  
 }
 
 Future<List<DepositItemModel>> getItems() async
@@ -127,11 +140,21 @@ Future<List<RecipeItemModel>> getAllRecipes() async
 {
   final db = await getDatabase();
 
-  // Query the table for all The recipes.
-  final List<Map<String, dynamic>> maps = await db.rawQuery("SELECT * FROM recipes LEFT JOIN recipe2deposit ON recipes.itemID = recipe2deposit.recipeID");
+  // Query the table for all The recipes with associated its ingredients
+  final List<Map<String, dynamic>> maps = await db.rawQuery('''
+    SELECT recipes.*, items.* 
+    FROM recipes LEFT JOIN recipe2deposit ON recipes.itemID = recipe2deposit.recipeID 
+                 LEFT JOIN items ON recipe2deposit.depositID = items.itemID
+  ''');
   
   // Fetch ingredients for each recipe 
-  //List<DepositItemModel> 
+  List<List<DepositItemModel>> ingredients = [];
+  for(int idx=0; idx<maps.length; ++idx) {
+    int recipeId = maps[idx]["recipes.recipeID"];
+    if(maps[recipeId]["items.itemID"] != null) {
+      ingredients[recipeId].add(DepositItemModel(name: maps[recipeId]["items.itemID"], location: maps[recipeId]["items.location"], isPresent: maps[recipeId]["items.isPresent"]));
+    }
+  }
 
   return List.generate(maps.length, (index) {
     return RecipeItemModel(

@@ -10,9 +10,9 @@ class RecipeItemModel
   final String description;
 
   // These should be derived from the join of recipe and deposit items IDs
-  List<DepositItemModel>? ingredients;
+  List<int>? ingredients;
 
-  RecipeItemModel({ this.itemID=0, required this.name, this.description = "" });
+  RecipeItemModel({ this.itemID=0, required this.name, this.description = "", this.ingredients });
 
   // Convert a recipe into a Map. The keys must correspond to the names of the
   // columns in the database.
